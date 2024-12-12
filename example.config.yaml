@@ -1,0 +1,15 @@
+adguard:
+  address: "http://adguard.homeserver.lan"
+  username: "env/ADGUARD_USERNAME"
+  password: "env/ADGUARD_PASSWORD"
+
+
+servers:
+  - name: "desktop"
+    ip: "192.168.0.181"
+
+  - name: "homeserver"
+    ip: "192.168.0.151"
+
+  - name: "wserver"
+    ip: "192.168.0.166"

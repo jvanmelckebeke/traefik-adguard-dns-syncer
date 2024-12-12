@@ -1,0 +1,52 @@
+x-default-env: &default-env
+  TZ: "Europe/Brussels"
+  PUID: 1000
+  PGID: 1000
+
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: 1m
+
+x-default: &default
+  <<: *logging
+  networks:
+    - default
+
+x-default-host: &default-host
+  <<: *logging
+  restart: unless-stopped
+  network_mode: host
+
+services:
+
+  demo-nginx:
+    image: nginx:alpine-slim
+    container_name: demo-nginx
+    ports:
+      - "9999:80"
+    environment:
+      - NGINX_HOST=nginx.lan
+      - NGINX_PORT=80
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.demo-nginx.rule=Host(`nginx.lan`)"
+      - "traefik.http.services.demo-nginx.loadbalancer.server.port=80"
+      - "traefik.docker.network=traefikdnstest"
+
+  traefik-adguard-dns-syncer:
+    build:
+      dockerfile: ./Dockerfile
+    container_name: traefik-adguard-dns-syncer
+    image: jvanmelckebeke/traefik-adguard-syncer:latest
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    env_file:
+      - .env
+    <<: *default
+
+
+networks:
+  default:
+    name: traefikdnstest
